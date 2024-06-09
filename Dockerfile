@@ -1,8 +1,20 @@
-FROM ubuntu
-WORKDIR /app
-RUN apt-get update && apt-get install -y git vim nginx
-RUN apt-get install -y openssh-server
-COPY index.html /var/www/html
-COPY file1 /app
-EXPOSE 3000
-ENTRYPOINT service nginx start && bash
+FROM jenkins/jenkins:latest
+
+USER root
+
+RUN apt-get update && \
+    apt-get install -y apt-transport-https \
+                       ca-certificates \
+                       curl \
+                       gnupg-agent \
+                       software-properties-common && \
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
+    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
+    apt-get update && \
+    apt-get install -y docker-ce docker-ce-cli containerd.io && \
+    usermod -aG docker jenkins
+
+USER jenkins
+
+COPY Jenkinsfile /var/jenkins_home/Jenkinsfile
+
