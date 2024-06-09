@@ -1,26 +1,30 @@
 pipeline {
     agent any
-
+    
     stages {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Define Dockerfile path
-                    def dockerfilePath = '/home/rahul/project/jenkins'
-
-                    // Build Docker image
-                    docker.build('my-docker-image', '-f ${dockerfilePath} .')
+                    def dockerfilePath = 'Dockerfile'
+                    docker.build("my-node-app", "-f ${dockerfilePath} .")
                 }
             }
         }
-
         stage('Run Docker Container') {
             steps {
                 script {
-                    // Run Docker container
-                    docker.image('my-docker-image').run('-d -p 8080:80')
+                    docker.image('my-node-app').run('--rm -d -p 3000:3000')
                 }
             }
+        }
+    }
+    
+    post {
+        success {
+            echo 'Docker container started successfully!'
+        }
+        failure {
+            echo 'Failed to start Docker container'
         }
     }
 }
